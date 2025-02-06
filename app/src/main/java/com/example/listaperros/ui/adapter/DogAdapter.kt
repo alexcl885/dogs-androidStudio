@@ -5,12 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.listaperros.R
 import com.example.listaperros.domain.models.Dog
-import com.example.listaperros.domain.models.DogsData
+
+import com.example.listaperros.domain.models.Repository
 
 
 class DogAdapter : RecyclerView.Adapter<ViewHDog>() {
 
-    var dogRepository: List<Dog> = DogsData.dogs //de momento, que sólo sean las imágenes.
+    var dogRepository: List<Dog> = Repository.dogs //de momento, que sólo sean las imágenes.
 
 
     /*
@@ -33,7 +34,7 @@ class DogAdapter : RecyclerView.Adapter<ViewHDog>() {
      */
     override fun onBindViewHolder(holder: ViewHDog, position: Int) {
         //LO QUE HARÉ ES SETEAR LOS DATOS.
-        holder.rendereize(dogRepository[position])
+        holder.rendereize(dogRepository.get(position), position)
     }
 
     /*

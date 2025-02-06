@@ -1,6 +1,8 @@
 package com.example.listaperros.domain.models
 
-class DogsData {
+import com.example.listaperros.data.datasource.database.entities.DogEntity
+
+class Repository {
     companion object{
         var dogs:List<Dog> = emptyList()
     }

@@ -1,23 +1,21 @@
 package com.example.listaperros.data.service
 
-import com.example.listaperros.data.datasource.Dogs
+import com.example.listaperros.data.datasource.mem.models.Dogs
 import kotlinx.coroutines.delay
 
-class DogService  {
+
+
+import javax.inject.Inject
+
+
+class DogService @Inject constructor() {
     suspend fun getDogs(): List<Pair<String, String>> {
-        delay(1000)  // Simulando un retardo de red (como si estuviera esperando una respuesta de la API)
+        delay(1000)
         return Dogs.dogs
     }
 
-    /*
-    Aquí, estoy filtrando por raza. Simulo un acceso por filtro.
-     */
     suspend fun getBreedDogs(breed: String): List<Pair<String,String>> {
         delay(1000)
-        val newDogs = Dogs.dogs.filter {
-            it.first.equals(breed)
-        }
-        return newDogs
+        return Dogs.dogs.filter { it.first.equals(breed, ignoreCase = true) }
     }
-
 }

@@ -1,4 +1,4 @@
-package com.example.listaperros.data.datasource
+package com.example.listaperros.data.datasource.mem.models
 
 object Dogs{
     val dogs : List<Pair<String, String>> = listOf(

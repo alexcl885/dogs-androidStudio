@@ -12,7 +12,7 @@ Se encargará de inicializar las vistas, elemento por elemento. Pondrá todos lo
  */
 class ViewHDog(view: View) : RecyclerView.ViewHolder(view){
 
-     var binding: ItemDogBinding
+    private lateinit var binding: ItemDogBinding
 
     init {
         binding = ItemDogBinding.bind(view)
@@ -22,7 +22,7 @@ class ViewHDog(view: View) : RecyclerView.ViewHolder(view){
     /*
     Métdo que se encara de mapear los item por propiedad del modelo.
      */
-    fun rendereize(get: Dog) {
+    fun rendereize(get: Dog, position: Int) {
         Glide
             .with(itemView.context)
             .load(get.image)

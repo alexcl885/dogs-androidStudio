@@ -3,83 +3,98 @@ package com.example.listaperros.ui.modelview
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.listaperros.data.repository.InMemoryDogRepository
 import com.example.listaperros.domain.models.Dog
+import com.example.listaperros.domain.usercase.DeleteDogsFromDataBaseUseCase
 import com.example.listaperros.domain.usercase.GetDogsBreedUseCase
 import com.example.listaperros.domain.usercase.GetDogsUseCase
+import com.example.listaperros.domain.usercase.PostDogEntity
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class DogViewModel : ViewModel() {
+@HiltViewModel
+class DogViewModel @Inject constructor(
+    private val useCaseList : GetDogsUseCase,
+    private val getDogsBreedUseCase: GetDogsBreedUseCase,
+    private val userCaseDeleteDatabase : DeleteDogsFromDataBaseUseCase,
+    private val insertDog : PostDogEntity
+): ViewModel() {
+
+
     var dogListLiveData = MutableLiveData<List<Dog>>() //repositorio observable
     var progressBarLiveData = MutableLiveData<Boolean> () //progressbar observable
-    var search = MutableLiveData<String>() //para el campo search
-
-    lateinit var useCaseList : GetDogsUseCase
-    lateinit var useCaseBreedList : GetDogsBreedUseCase
-
-
-    /*
-    Si no especificamos nada en el viewModelScop.launch{} todo se ejecuta en el hilo principal
-    Hasta que el bloque withContext no se complete, el flujo de ejecución se suspende, hasta que
-    no finalize la consulta de datos en otro hilo.
-     */
+    var breed = MutableLiveData<String>() //para el campo search con la raza.
+    var insertLiveData = MutableLiveData<Boolean>()
     fun list() {
-        viewModelScope.launch {  //Se destruye al eliminarse el ViewModel
+        viewModelScope.launch {
             progressBarLiveData.value = true //notifico
-            // delay(2000)
-            var data : List<Dog>?
+            delay(500)
+            // useCaseList = GetDogsUseCase()  //Ya no me hace falta, porque se crea por Hilt.
+            var data : List<Dog> ?
             withContext(Dispatchers.IO){
-                useCaseList = GetDogsUseCase(InMemoryDogRepository())
                 data  = useCaseList()  //aquí se invoca y se obtienen los datos.
             }
-            //Se suspende este flujo, a la espera de la operación asíncrona en otro hilo.
-            //La UI puede seguir trabajando sin problemas.
-            if (data !=null )
-                dogListLiveData.value = data!!  //notifico
-            progressBarLiveData.value = false  //notifico
-        }
-    }
-
-
-    fun list1() {
-        viewModelScope.launch {  //Se destruye al eliminarse el ViewModel
-            progressBarLiveData.value = true //notifico
-            // delay(2000)
-            var data : List<Dog>?
-            withContext(Dispatchers.IO){
-                useCaseList = GetDogsUseCase(InMemoryDogRepository())
-                data  = useCaseList()  //aquí se invoca y se obtienen los datos.
-                if (data !=null )
-                    dogListLiveData.postValue(data!!)  //notifico
-                progressBarLiveData.postValue(false)
+            // var data : List<Dog> ? = useCaseList()  //aquí se invoca y se obtienen los datos.
+            data.let {
+                dogListLiveData.value = it  //notifico
+                progressBarLiveData.value = false  //notifico
             }
         }
     }
+    fun insertDogFun(dog:Dog) {
+        viewModelScope.launch {
+            progressBarLiveData.value = true
+            var res = false;
+            withContext(Dispatchers.IO){
+                insertDog.dog = dog
+                res = insertDog(dog)
+            }
+            progressBarLiveData.value = false;
+            if (res){
+                insertLiveData.value = true
+            }
 
 
+        }
 
-
-    fun searchByBreed(breed: String){
-        //Log.i("TAG-DOGS", "La raza elegida es $breed")
-        search.value = breed  //notificamos cambio
     }
+
+
 
     fun listForBreed(breed: String) {
         viewModelScope.launch {
             progressBarLiveData.value = true //notifico
-            // delay(2000)
-            var data : List<Dog>?
+            delay(500)
+            var data : List<Dog> ?
+
             withContext(Dispatchers.IO){
-                useCaseBreedList = GetDogsBreedUseCase(InMemoryDogRepository(), breed)
-                data = useCaseBreedList()  //aquí se invoca y se obtienen los datos.
+                getDogsBreedUseCase.setBreed(breed) //primero tenemos que setear, antes de llamar al caso de uso
+                data  = getDogsBreedUseCase()  //aquí se invoca y se obtienen los datos.
             }
+            data.let {
+                dogListLiveData.value = it  //notifico
+                progressBarLiveData.value = false  //notifico
+            }
+        }
+    }
 
-            if (data != null)
-                dogListLiveData.value = data!!  //notifico
-            progressBarLiveData.value = false  //notifico
+    fun searchByBreed(breed: String){
+        //Log.i("TAG-DOGS", "La raza elegida es $breed")
+        this.breed.value = breed  //notificamos cambio
+    }
 
+    /*
+    Este caso de uso, es para eliminar los datos de la base de datos.
+     */
+    fun delete() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                userCaseDeleteDatabase() //si invocamos para borrar la base de datos.
+            }
+            list() //Vuelvo a cargar los datos desde Dogs.
         }
     }
 
