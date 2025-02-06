@@ -75,6 +75,10 @@ class DogRepository @Inject constructor(
         dogDao.insertDog(dog)
     }
 
+    override suspend fun deleteDog(dog: DogEntity) {
+        dogDao.deleteDog(dog.breed)
+    }
+
     override suspend fun deleteDatabase() {
         dogDao.deleteAll()
     }

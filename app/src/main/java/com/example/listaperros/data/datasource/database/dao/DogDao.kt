@@ -28,4 +28,7 @@ interface DogDao {
     // Eliminamos todos los Dogs
     @Query("DELETE FROM dogentity")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM dogentity WHERE breed = :breed")
+    suspend fun deleteDog(breed: String)
 }

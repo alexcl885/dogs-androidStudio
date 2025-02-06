@@ -18,6 +18,7 @@ interface DogRepositoryInterface {
     suspend fun insertBreedEntitytoDatabase(listEntity : List<DogEntity>)
     suspend fun insertBreedEntitytoDatabase(dog : DogEntity)
 
+    suspend fun deleteDog(dog: DogEntity);
 
     suspend fun deleteDatabase()
 }

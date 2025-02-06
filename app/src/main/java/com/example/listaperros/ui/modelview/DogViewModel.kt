@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.listaperros.domain.models.Dog
+import com.example.listaperros.domain.usercase.DeleteDogUseCase
 import com.example.listaperros.domain.usercase.DeleteDogsFromDataBaseUseCase
 import com.example.listaperros.domain.usercase.GetDogsBreedUseCase
 import com.example.listaperros.domain.usercase.GetDogsUseCase
@@ -20,7 +21,8 @@ class DogViewModel @Inject constructor(
     private val useCaseList : GetDogsUseCase,
     private val getDogsBreedUseCase: GetDogsBreedUseCase,
     private val userCaseDeleteDatabase : DeleteDogsFromDataBaseUseCase,
-    private val insertDog : PostDogEntity
+    private val insertDog : PostDogEntity,
+    private val deleteDogUseCase : DeleteDogUseCase
 ): ViewModel() {
 
 
@@ -28,6 +30,7 @@ class DogViewModel @Inject constructor(
     var progressBarLiveData = MutableLiveData<Boolean> () //progressbar observable
     var breed = MutableLiveData<String>() //para el campo search con la raza.
     var insertLiveData = MutableLiveData<Boolean>()
+    var deleteDogLiveData = MutableLiveData<Boolean>()
     fun list() {
         viewModelScope.launch {
             progressBarLiveData.value = true //notifico
@@ -97,5 +100,22 @@ class DogViewModel @Inject constructor(
             list() //Vuelvo a cargar los datos desde Dogs.
         }
     }
+    fun deleteDogFunction(dog: Dog) {
+        viewModelScope.launch {
+            progressBarLiveData.value = true
+            var res = false
+            withContext(Dispatchers.IO) {
+                deleteDogUseCase.dog = dog
+                res = deleteDogUseCase(dog)
+            }
+            progressBarLiveData.value = false
+            deleteDogLiveData.value = res
+
+            if (res) {
+                list()
+            }
+        }
+    }
+
 
 }

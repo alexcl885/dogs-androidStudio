@@ -9,7 +9,7 @@ import com.example.listaperros.domain.models.Dog
 import com.example.listaperros.domain.models.Repository
 
 
-class DogAdapter : RecyclerView.Adapter<ViewHDog>() {
+class DogAdapter( var deleteClick: (Int) -> Unit) : RecyclerView.Adapter<ViewHDog>() {
 
     var dogRepository: List<Dog> = Repository.dogs //de momento, que sólo sean las imágenes.
 
@@ -23,8 +23,7 @@ class DogAdapter : RecyclerView.Adapter<ViewHDog>() {
         val layoutInflater = LayoutInflater.from(parent.context)  //Objeto para crear la vista.
         val layoutDogItem = R.layout.item_dog  //accedo al xml del item a crear.
         return ViewHDog(
-            layoutInflater.inflate(layoutDogItem, parent, false)
-        )
+            layoutInflater.inflate(layoutDogItem, parent, false), deleteClick)
     }
 
 

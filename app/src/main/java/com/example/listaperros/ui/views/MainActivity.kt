@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listaperros.databinding.ActivityMainBinding
 import com.example.listaperros.domain.models.Dog
+import com.example.listaperros.domain.models.Repository
 import com.example.listaperros.ui.adapter.DogAdapter
 import com.example.listaperros.ui.modelview.DogViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,6 +91,14 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             }
 
         }
+        dogViewModel.deleteDogLiveData.observe(this) { isDelete ->
+            if (isDelete) {
+                Toast.makeText(this, "Perro eliminado", Toast.LENGTH_LONG).show()
+                dogViewModel.list() //recarga la lista al eliminar el perro
+            } else {
+                Toast.makeText(this, "No se pudo eliminar", Toast.LENGTH_LONG).show()
+            }
+        }
 
     }
 
@@ -97,7 +106,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     Inicializa el RecyclerView y el Adapter
     */
     private fun initRecyclerView() {
-        adapter = DogAdapter() // Asegurar inicialización del adapter
+        adapter = DogAdapter{position -> deleteDogTest(position)}
         binding.myRecyclerPpal.layoutManager = LinearLayoutManager(this)
         binding.myRecyclerPpal.adapter = adapter
     }
@@ -135,4 +144,12 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         dogViewModel.insertDogFun(dog)
     }
+    fun deleteDogTest(pos: Int) {
+        val dogList = adapter.dogRepository
+        if (pos in dogList.indices) {
+            val dog = dogList[pos]
+            dogViewModel.deleteDogFunction(dog)
+        }
+    }
+
 }

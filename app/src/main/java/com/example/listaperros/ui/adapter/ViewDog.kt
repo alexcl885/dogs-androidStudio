@@ -10,7 +10,7 @@ import com.example.listaperros.domain.models.Dog
 /*
 Se encargará de inicializar las vistas, elemento por elemento. Pondrá todos los datos que le pasa el adaptador.
  */
-class ViewHDog(view: View) : RecyclerView.ViewHolder(view){
+class ViewHDog(view: View, var deleteOnClick: (Int) -> Unit) : RecyclerView.ViewHolder(view){
 
     private lateinit var binding: ItemDogBinding
 
@@ -28,6 +28,13 @@ class ViewHDog(view: View) : RecyclerView.ViewHolder(view){
             .load(get.image)
             .centerCrop()
             .into(binding.ivImagen)
+
+        setOnClickListener(position)
+    }
+    private fun setOnClickListener(position : Int) {
+        binding.btDelete.setOnClickListener{
+            deleteOnClick(position)
+        }
 
     }
 
